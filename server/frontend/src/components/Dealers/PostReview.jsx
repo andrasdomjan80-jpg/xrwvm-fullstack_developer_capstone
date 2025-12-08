@@ -12,17 +12,15 @@ const PostReview = () => {
   const [date, setDate] = useState("");
   const [carmodels, setCarmodels] = useState([]);
 
-  let curr_url = window.location.href;
-  let root_url = curr_url.substring(0, curr_url.indexOf("postreview"));
-  let params = useParams();
-  let id = params.id;
-  let dealer_url = root_url + `djangoapp/dealer/${id}`;
-  let review_url = root_url + `djangoapp/add_review`;
-  let carmodels_url = root_url + `djangoapp/get_cars`;
+  // 🔥 Use absolute URLs instead of substring hacks
+  const { id } = useParams();
+
+  const dealer_url = `/djangoapp/dealer/${id}`;
+  const review_url = `/djangoapp/add_review`;
+  const carmodels_url = `/djangoapp/get_cars`;
 
   const postreview = async () => {
     let name = sessionStorage.getItem("firstname") + " " + sessionStorage.getItem("lastname");
-    // If the first and second name are stored as null, use the username
     if (name.includes("null")) {
       name = sessionStorage.getItem("username");
     }
@@ -47,6 +45,7 @@ const PostReview = () => {
     });
 
     console.log(jsoninput);
+
     const res = await fetch(review_url, {
       method: "POST",
       headers: {
@@ -62,9 +61,7 @@ const PostReview = () => {
   };
 
   const get_dealer = async () => {
-    const res = await fetch(dealer_url, {
-      method: "GET"
-    });
+    const res = await fetch(dealer_url, { method: "GET" });
     const retobj = await res.json();
 
     if (retobj.status === 200) {
@@ -76,13 +73,17 @@ const PostReview = () => {
   };
 
   const get_cars = async () => {
-    const res = await fetch(carmodels_url, {
-      method: "GET"
-    });
-    const retobj = await res.json();
+    try {
+      const res = await fetch(carmodels_url, { method: "GET" });
+      const retobj = await res.json();
 
-    let carmodelsarr = Array.from(retobj.CarModels);
-    setCarmodels(carmodelsarr);
+      console.log("Car models received from backend:", retobj);
+
+      let carmodelsarr = Array.from(retobj.CarModels || []);
+      setCarmodels(carmodelsarr);
+    } catch (err) {
+      console.error("Error fetching car models:", err);
+    }
   };
 
   useEffect(() => {
@@ -209,7 +210,7 @@ const PostReview = () => {
                 color: "#1f2933",
               }}
             >
-              Car make &amp; model
+              Car make & model
             </label>
             <select
               name="cars"
@@ -271,7 +272,7 @@ const PostReview = () => {
             />
           </div>
 
-          {/* Button row */}
+          {/* Submit button */}
           <div
             style={{
               display: "flex",
