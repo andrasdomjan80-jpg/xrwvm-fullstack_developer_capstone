@@ -152,13 +152,23 @@ def get_dealer_details(request, dealer_id):
     else:
         return JsonResponse({"status":400,"message":"Bad Request"})
 
+@csrf_exempt
 def add_review(request):
-    if(request.user.is_anonymous == False):
-        data = json.loads(request.body)
-        try:
-            response = post_review(data)
-            return JsonResponse({"status":200})
-        except:
-            return JsonResponse({"status":401,"message":"Error in posting review"})
-    else:
-        return JsonResponse({"status":403,"message":"Unauthorized"})
+    if request.method != "POST":
+        return JsonResponse({"status": 405, "message": "Method not allowed"})
+
+    if request.user.is_anonymous:
+        return JsonResponse({"status": 403, "message": "Unauthorized"})
+
+    try:
+        data = json.loads(request.body or "{}")
+    except json.JSONDecodeError:
+        return JsonResponse({"status": 400, "message": "Invalid JSON body"})
+
+    try:
+        # send data to your Cloud Function / backend
+        post_review(data)
+        return JsonResponse({"status": 200})
+    except Exception as e:
+        logger.exception("Error in posting review")
+        return JsonResponse({"status": 500, "message": "Error in posting review"})
