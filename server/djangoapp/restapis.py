@@ -8,12 +8,12 @@ load_dotenv()
 # Base URLs for backend and sentiment microservice
 backend_url = os.getenv(
     'backend_url',
-    default="http://localhost:3030"
+    default="http://localhost:3030",
 ).rstrip('/')
 
 sentiment_analyzer_url = os.getenv(
     'sentiment_analyzer_url',
-    default="http://localhost:5050"
+    default="http://localhost:5050",
 ).rstrip('/')
 
 
