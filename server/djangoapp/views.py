@@ -129,7 +129,7 @@ def get_dealer_reviews(request, dealer_id):
         return JsonResponse({"status": 400, "message": "Bad Request"})
 
     endpoint = "/fetchReviews/dealer/" + str(dealer_id)
-    reviews = get_request(endpoint) or []  # if get_request returns None, use []
+    reviews = get_request(endpoint) or []  # if get_request returns None
 
     for review_detail in reviews:
         try:
